@@ -83,7 +83,17 @@ export default function CBSDashboard() {
     } else if (path.includes('/cbs/offering-b2c')) {
       addTab({ id: 'offering-b2c', name: 'Offering(B2C)', path, isClosable: true });
     } else if (path.includes('/cbs/eid-special-offer')) {
-      addTab({ id: 'eid-special-offer', name: 'Eid_Special_Offer 🍃', path, isClosable: true });
+      const urlParams = new URLSearchParams(path.split('?')[1] || '');
+      const name = urlParams.get('name') || 'Eid_Special_Offer';
+      const iconMap: Record<string, string> = {
+        'Eid_Special_Offer': '🍃',
+        'Boshonto_Offer': '🌸',
+        'Victory_Pack': '🇧🇩',
+        'Pohela_Boishakh_Pack': '🍎',
+        'Monsoon_Data_Pack': '🌧️'
+      };
+      const icon = iconMap[name] || '🍃';
+      addTab({ id: `offering-${name}`, name: `${name} ${icon}`, path, isClosable: true });
     } else if (path.includes('/cbs/bdc-rent-oneoff')) {
       addTab({ id: 'bdc-rent-oneoff', name: 'BDC_Rent_oneoff', path, isClosable: true });
     } else if (path.includes('/cbs/configure-offering')) {
@@ -118,7 +128,17 @@ export default function CBSDashboard() {
   const getBreadcrumbs = () => {
     const path = location.pathname;
     if (path.includes('/cbs/eid-special-offer')) {
-      return 'Unified Product Catalog > Catalogs > Offering(B2C) > Eid_Special_Offer 🍃';
+      const urlParams = new URLSearchParams(path.split('?')[1] || '');
+      const name = urlParams.get('name') || 'Eid_Special_Offer';
+      const iconMap: Record<string, string> = {
+        'Eid_Special_Offer': '🍃',
+        'Boshonto_Offer': '🌸',
+        'Victory_Pack': '🇧🇩',
+        'Pohela_Boishakh_Pack': '🍎',
+        'Monsoon_Data_Pack': '🌧️'
+      };
+      const icon = iconMap[name] || '🍃';
+      return `Unified Product Catalog > Catalogs > Offering(B2C) > ${name} ${icon}`;
     }
     if (path.includes('/cbs/bdc-rent-oneoff')) {
       return 'Unified Product Catalog > Catalogs > Plan > BDC_Rent_oneoff 🔒';

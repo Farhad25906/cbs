@@ -67,21 +67,41 @@ export default function ConfigureOfferingView() {
 
           <div className="ml-1 space-y-1 overflow-y-auto flex-1">
             <div className="flex items-center gap-1 font-semibold text-gray-700 cursor-pointer">
-              <ChevronDown className="w-3 h-3 text-gray-500" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
               <span>INS Supplementary Offerings</span>
             </div>
-            <div className="ml-4 border-l border-gray-300 pl-2 space-y-1">
+            <div className="ml-4 border-l border-gray-300 pl-2 space-y-1.5">
               <div className="flex items-center gap-1 text-gray-600 font-medium cursor-pointer">
-                <ChevronDown className="w-3 h-3 text-gray-500" />
+                <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
                 <span>Common</span>
               </div>
-              <div className="ml-4 border-l border-gray-300 pl-2">
-                <div 
-                  onClick={handleTreeOfferingClick}
-                  className="bg-blue-100 text-blue-900 font-bold px-2 py-1 rounded border border-blue-300 cursor-pointer hover:bg-blue-200 transition-colors"
-                >
-                  🏷️ Eid_Special_Offer
-                </div>
+              <div className="ml-4 border-l border-gray-300 pl-2 space-y-1.5">
+                {[
+                  { name: 'Eid_Special_Offer', icon: '🍃' },
+                  { name: 'Boshonto_Offer', icon: '🌸' },
+                  { name: 'Victory_Pack', icon: '🇧🇩' },
+                  { name: 'Pohela_Boishakh_Pack', icon: '🍎' },
+                  { name: 'Monsoon_Data_Pack', icon: '🌧️' }
+                ].map((offer) => (
+                  <div 
+                    key={offer.name}
+                    onClick={() => {
+                      addTab({
+                        id: `offering-${offer.name}`,
+                        name: `${offer.name} ${offer.icon}`,
+                        path: `/cbs/eid-special-offer?name=${offer.name}`,
+                        isClosable: true
+                      });
+                      addToast(`Opening ${offer.name} details...`, 'info');
+                      navigate(`/cbs/eid-special-offer?name=${offer.name}`);
+                    }}
+                    className="bg-blue-100/75 text-blue-900 font-bold px-2 py-1.5 rounded border border-blue-200 cursor-pointer hover:bg-blue-200 transition-colors flex items-center gap-1.5 text-[11px]"
+                  >
+                    <span>🏷️</span>
+                    <span>{offer.name}</span>
+                    <span className="text-xs">{offer.icon}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
