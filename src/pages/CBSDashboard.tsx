@@ -1,51 +1,66 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Info,
-  ChevronRight,
-  Search,
-  Settings,
-  FolderTree,
-  ChevronDown,
-  X,
-  Plus
-} from 'lucide-react';
-import InventoryManagement from '@/pages/InventoryManagement';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useTabStore } from '@/store/useTabStore';
+import { useToastStore } from '@/store/useToastStore';
 import ToastContainer from '@/components/ToastContainer';
 import { useCRMStore } from '@/store/useCRMStore';
-
-// Tabs: Home, Site Map, Offering(B2C), Inventory
-type HeaderTab = 'Home' | 'Site Map' | 'Offering(B2C)' | 'Inventory';
+import { 
+  Info, 
+  ChevronRight, 
+  Search, 
+  Settings, 
+  FolderTree, 
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  HelpCircle
+} from 'lucide-react';
 
 export default function CBSDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<HeaderTab>('Site Map');
-  
-  // Sidebar items for Site Map tab in CBS
-  const cbsSidebarItems = [
-    'Unified System Management',
-    'Unified Product Catalog',
-    'Invoicing',
-    'Billing Configuration',
-    'Accounts Receivable',
-    'Customer Care',
-    'General Ledger',
-    'Inventory',
-    'Task Scheduling Management',
-    'NG OCG',
-    'Emergency Maintenance Entry',
-    'License',
-    'Order Management'
-  ];
-  
-  const [activeSidebarItem, setActiveSidebarItem] = useState<string>('Unified Product Catalog');
-  const [currentTime, setCurrentTime] = useState('');
+  const location = useLocation();
+  const { addToast } = useToastStore();
 
-  // Keep the time updated like a real system
+  // Tab Store
+  const openTabs = useTabStore((state) => state.openTabs);
+  const activeTabId = useTabStore((state) => state.activeTabId);
+  const addTab = useTabStore((state) => state.addTab);
+  const closeTab = useTabStore((state) => state.closeTab);
+  const setActiveTabId = useTabStore((state) => state.setActiveTabId);
+
+  // Time & Sidebar state
+  const [currentTime, setCurrentTime] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMiddleLoading, setIsMiddleLoading] = useState(false);
+
+  // Sidebar items for CBS Site Map
+  const cbsSidebarItems = [
+    { name: 'Unified Product Catalog', path: '/cbs/site-map', id: 'site-map' },
+    { name: 'Offering(B2C)', path: '/cbs/offering-b2c', id: 'offering-b2c' },
+    { name: 'Eid_Special_Offer', path: '/cbs/eid-special-offer', id: 'eid-special-offer' },
+    { name: 'Plan (BDC_Rent_oneoff)', path: '/cbs/bdc-rent-oneoff', id: 'bdc-rent-oneoff' },
+    { name: 'Configure Offering', path: '/cbs/configure-offering', id: 'configure-offering' },
+    { name: 'Cash Recharge Re...', path: '/cbs/cash-recharge', id: 'cash-recharge' },
+    { name: 'Integration Query', path: '/cbs/integration-query', id: 'integration-query' },
+    { name: 'Suspend and Bar', path: '/cbs/suspend-bar', id: 'suspend-bar' },
+    { name: 'Report Lost & Cancel', path: '/cbs/report-lost', id: 'report-lost' },
+    { name: 'Subscriber Info & SIM', path: '/cbs/subscriber-info', id: 'subscriber-info' },
+    { name: 'Bill Run Monitoring', path: '/cbs/bill-run', id: 'bill-run' },
+    { name: 'Real Billing', path: '/cbs/real-billing', id: 'real-billing' },
+    { name: 'Reactivate Subscriber', path: '/cbs/reactivate-subscriber', id: 'reactivate-subscriber' },
+    { name: 'Resource Inventory', path: '/cbs/inventory', id: 'inventory' }
+  ];
+
+  // Trigger middle UI loading animation on route transition
+  useEffect(() => {
+    setIsMiddleLoading(true);
+    const timer = setTimeout(() => setIsMiddleLoading(false), 200);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  // Keep clock updated
   useEffect(() => {
     const updateTime = () => {
       const date = new Date();
-      // Format: 2026-07-19 13:00:41
       const pad = (n: number) => n.toString().padStart(2, '0');
       const yyyy = date.getFullYear();
       const mm = pad(date.getMonth() + 1);
@@ -60,70 +75,99 @@ export default function CBSDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleTabChange = (tab: HeaderTab) => {
-    setActiveTab(tab);
-    if (tab === 'Site Map') {
-      setActiveSidebarItem('Unified Product Catalog');
-    } else {
-      setActiveSidebarItem('Home');
+  // Sync route path with open tabs in store
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/cbs' || path === '/cbs/' || path.includes('/cbs/site-map')) {
+      setActiveTabId('site-map');
+    } else if (path.includes('/cbs/offering-b2c')) {
+      addTab({ id: 'offering-b2c', name: 'Offering(B2C)', path, isClosable: true });
+    } else if (path.includes('/cbs/eid-special-offer')) {
+      addTab({ id: 'eid-special-offer', name: 'Eid_Special_Offer 🍃', path, isClosable: true });
+    } else if (path.includes('/cbs/bdc-rent-oneoff')) {
+      addTab({ id: 'bdc-rent-oneoff', name: 'BDC_Rent_oneoff', path, isClosable: true });
+    } else if (path.includes('/cbs/configure-offering')) {
+      addTab({ id: 'configure-offering', name: 'Configure Offering', path, isClosable: true });
+    } else if (path.includes('/cbs/cash-recharge')) {
+      addTab({ id: 'cash-recharge', name: 'Cash Recharge Re...', path, isClosable: true });
+    } else if (path.includes('/cbs/integration-query')) {
+      addTab({ id: 'integration-query', name: 'Integration Query', path, isClosable: true });
+    } else if (path.includes('/cbs/suspend-bar')) {
+      addTab({ id: 'suspend-bar', name: 'Suspend and Bar', path, isClosable: true });
+    } else if (path.includes('/cbs/report-lost')) {
+      addTab({ id: 'report-lost', name: 'Report Lost & Cancel', path, isClosable: true });
+    } else if (path.includes('/cbs/subscriber-info')) {
+      addTab({ id: 'subscriber-info', name: 'Subscriber Info', path, isClosable: true });
+    } else if (path.includes('/cbs/bill-run')) {
+      addTab({ id: 'bill-run', name: 'Bill Run Monitoring', path, isClosable: true });
+    } else if (path.includes('/cbs/real-billing')) {
+      addTab({ id: 'real-billing', name: 'Real Billing', path, isClosable: true });
+    } else if (path.includes('/cbs/reactivate-subscriber')) {
+      addTab({ id: 'reactivate-subscriber', name: 'Reactivate Subscriber', path, isClosable: true });
+    } else if (path.includes('/cbs/inventory')) {
+      addTab({ id: 'inventory', name: 'Inventory', path, isClosable: true, icon: '📦' });
     }
+  }, [location.pathname, setActiveTabId, addTab]);
+
+  const handleSidebarClick = (item: { name: string; path: string; id: string }) => {
+    addTab({ id: item.id, name: item.name.replace(/\s*\(.*\)/, ''), path: item.path, isClosable: true });
+    addToast(`Navigating to ${item.name}...`, 'info');
+    navigate(item.path);
   };
 
-  // Unified Product Catalog Grid Data
-  const upcSections = [
-    {
-      title: 'Catalogs',
-      columns: [
-        ['Offering(B2C)', 'Product', 'Plan'],
-        ['Policy Template', 'Brand', 'Sales Catalog'],
-        ['Incentive', 'Simple Offering Template', 'Simple Offering']
-      ]
-    },
-    {
-      title: 'Global Price',
-      columns: [
-        ['Network Service'],
-        ['Customer Service'],
-        ['Special Number'],
-        ['Tax']
-      ]
-    },
-    {
-      title: 'Global Business Rule',
-      columns: [
-        ['Consumption Limit', 'Notification'],
-        ['Manage Status', 'Authentication'],
-        ['Clear Resource']
-      ]
-    },
-    {
-      title: 'Reference Data',
-      columns: [
-        ['Free Unit', '>>Free Unit Type', '>>Free Unit Payment Limit Type', '>>Free Unit Priority', 'Accumulator', '>>Accumulator Type'],
-        ['>>Accumulator Cycle', '>>Accumulator Type Reference', '>>Accumulator Scenario Rule', 'Account Balance', '>>Account Balance Type', '>>Account Balance Priority'],
-        ['Policy Cycle', 'Time Schema', 'Notification', '>>Notification Template', '>>Notification Type', 'Policy Counter'],
-        ['>>Counter Define', '>>Counter Scenario', '>>Scenario Release']
-      ]
-    },
-    {
-      title: 'Operation',
-      columns: [
-        ['Data Synchronization Status', 'Batch Data Synchronize'],
-        ['Manage Locks', 'Trash'],
-        ['Trash Logs', 'Batch Offering Release']
-      ]
+  const getBreadcrumbs = () => {
+    const path = location.pathname;
+    if (path.includes('/cbs/eid-special-offer')) {
+      return 'Unified Product Catalog > Catalogs > Offering(B2C) > Eid_Special_Offer 🍃';
     }
-  ];
+    if (path.includes('/cbs/bdc-rent-oneoff')) {
+      return 'Unified Product Catalog > Catalogs > Plan > BDC_Rent_oneoff 🔒';
+    }
+    if (path.includes('/cbs/offering-b2c')) {
+      return 'Unified Product Catalog > Catalogs > Offering(B2C)';
+    }
+    if (path.includes('/cbs/configure-offering')) {
+      return 'Home > Product Catalog > Product Configuration > Configure Offering';
+    }
+    if (path.includes('/cbs/cash-recharge')) {
+      return 'Cash Recharge / Reward Settings List Management';
+    }
+    if (path.includes('/cbs/integration-query')) {
+      return 'Customer Care > Point of Sale > Integration Query';
+    }
+    if (path.includes('/cbs/suspend-bar')) {
+      return 'Customer Care > Point of Sale > Suspend and Bar';
+    }
+    if (path.includes('/cbs/report-lost')) {
+      return 'Customer Care > Point of Sale > Report Lost and Cancel Report';
+    }
+    if (path.includes('/cbs/subscriber-info')) {
+      return 'Customer Care > Point of Sale > Subscriber Info & SIM Profile';
+    }
+    if (path.includes('/cbs/bill-run')) {
+      return 'Home > Site Map > Real Billing > Bill Run Monitoring';
+    }
+    if (path.includes('/cbs/real-billing')) {
+      return 'Invoicing > Bill Run Management > Real Billing';
+    }
+    if (path.includes('/cbs/reactivate-subscriber')) {
+      return 'Customer Care > Subscriber Management > Reactivate Subscriber';
+    }
+    if (path.includes('/cbs/inventory')) {
+      return 'Inventory Management > Resource Inventory Pool';
+    }
+    return 'Unified Product Catalog > Catalogs > Site Map';
+  };
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] text-gray-800 flex flex-col font-sans select-none">
-      
+      <ToastContainer />
+
       {/* 1. TOP HEADER BRAND BAR */}
-      <div className="bg-gradient-to-r from-[#4b77b1] via-[#6f9fdc] to-[#4b77b1] border-b border-[#3b5e91] px-3 py-1 flex items-center justify-between text-white shadow-sm">
+      <div className="bg-gradient-to-r from-[#4b77b1] via-[#6f9fdc] to-[#4b77b1] border-b border-[#3b5e91] px-3 py-1 flex items-center justify-between text-white shadow-xs">
         <div className="flex items-center gap-3">
           {/* Huawei style Logo */}
-          <div className="flex items-center gap-2">
-            {/* Huawei Red flower shape SVG */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/cbs/site-map')}>
             <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M50 50 C40 30, 20 40, 50 50 Z" fill="#e53935" />
               <path d="M50 50 C60 30, 80 40, 50 50 Z" fill="#e53935" />
@@ -137,14 +181,19 @@ export default function CBSDashboard() {
             </svg>
             <span className="text-xl font-bold tracking-tight text-white leading-none">CBS</span>
           </div>
+
           {/* Blue Dropdown Orb */}
-          <button className="w-4 h-4 rounded-full bg-[#337ab7] hover:bg-[#286090] flex items-center justify-center text-white border border-[#2e6da4] shadow-xs cursor-pointer ml-1">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title="Toggle Menu"
+            className="w-4 h-4 rounded-full bg-[#337ab7] hover:bg-[#286090] flex items-center justify-center text-white border border-[#2e6da4] shadow-xs cursor-pointer ml-1"
+          >
             <span className="text-[8px]">▼</span>
           </button>
         </div>
 
         {/* Right Info Controls */}
-        <div className="flex items-center gap-5 text-[11px] text-blue-50 font-medium">
+        <div className="flex items-center gap-4 text-[11px] text-blue-50 font-medium">
           <div className="flex items-center gap-1">
             <span className="text-blue-100">Project</span>
             <select className="border border-[#3b5e91] px-2 py-0.5 rounded-sm bg-white text-gray-800 text-[11px] h-6 outline-none focus:border-blue-400">
@@ -154,13 +203,13 @@ export default function CBSDashboard() {
           
           <div className="flex items-center gap-1.5 bg-[#3a6192]/40 px-2.5 py-1 rounded-md border border-[#3b5e91]">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            <span>Root (UTC+6, {currentTime || '2026-07-21 00:15:30'})</span>
+            <span>Root (UTC+6, {currentTime || '2026-07-21 13:19:12'})</span>
             <Info className="w-3.5 h-3.5 text-blue-200 cursor-pointer hover:text-white" />
           </div>
 
           <div className="flex items-center gap-2">
             <span className="bg-[#428bca] text-white px-2 py-0.5 rounded-sm text-[9px] font-bold border border-[#357ebd]">MVNE</span>
-            <span className="text-yellow-200 font-semibold hover:underline cursor-pointer">benoir</span>
+            <span className="text-yellow-200 font-semibold cursor-pointer hover:underline">benozir</span>
           </div>
 
           <button 
@@ -175,346 +224,154 @@ export default function CBSDashboard() {
         </div>
       </div>
 
-      {/* 2. TABS ROW (Home, Site Map, Offering(B2C), Inventory) */}
+      {/* 2. TABS ROW */}
       <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-3 pt-1.5 flex items-end justify-between shadow-xs">
-        <div className="flex items-end gap-1 overflow-x-auto">
-          {(['Home', 'Site Map', 'Offering(B2C)', 'Inventory'] as HeaderTab[]).map((tab) => {
-            const isActive = activeTab === tab;
+        <div className="flex items-end gap-1 overflow-x-auto select-none">
+          {openTabs.map((tab) => {
+            const isActive = activeTabId === tab.id;
             return (
-              <button
-                key={tab}
-                onClick={() => handleTabChange(tab)}
-                className={`group flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-t-md border-t border-x transition-all duration-150 relative cursor-pointer ${
+              <div
+                key={tab.id}
+                className={`group flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-t-md border-t border-x transition-all duration-150 relative ${
                   isActive
-                    ? 'bg-white text-blue-900 border-[#a9bbcf] font-bold border-b-white z-10'
-                    : 'bg-[#e3ecf5] hover:bg-white text-gray-700 border-transparent hover:border-gray-300 border-b-[#a9bbcf]'
+                    ? 'bg-white text-blue-950 border-[#a9bbcf] font-bold border-b-white z-10 shadow-2xs'
+                    : 'bg-[#e3ecf5] hover:bg-white text-gray-700 border-transparent hover:border-gray-300'
                 }`}
               >
-                {tab === 'Home' && <span className="text-[11px]">🏠</span>}
-                {tab === 'Inventory' && <span className="text-[11px]">📦</span>}
-                <span>{tab}</span>
-                {(tab === 'Offering(B2C)' || tab === 'Inventory') && (
-                  <span 
+                <button
+                  type="button"
+                  onClick={() => navigate(tab.path)}
+                  className="flex items-center gap-1 cursor-pointer focus:outline-none"
+                >
+                  {tab.icon && <span className="text-[11px]">{tab.icon}</span>}
+                  <span>{tab.name}</span>
+                </button>
+
+                {tab.isClosable !== false && (
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleTabChange('Site Map');
+                      closeTab(tab.id, navigate);
                     }}
-                    className="ml-1 text-[9px] bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-full w-3 h-3 flex items-center justify-center font-bold"
+                    className="ml-1 text-[10px] text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold cursor-pointer"
+                    title="Close Tab"
                   >
                     ×
-                  </span>
+                  </button>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
-        
+
         <div className="pb-1 text-xs text-gray-500 flex items-center gap-1">
-          <span className="cursor-pointer hover:text-gray-700">📋</span>
-          <span className="cursor-pointer hover:text-gray-700">🔄</span>
+          <HelpCircle className="w-4 h-4 text-gray-400" />
+          <span>Quick Help</span>
         </div>
       </div>
 
-      {/* 3. DOUBLE SIDEBAR + MAIN AREA PANEL */}
+      {/* 3. BREADCRUMB TRAIL BAR */}
+      <div className="bg-[#f8f9fa] border-b border-[#cfd2d7] px-4 py-1 text-[11px] text-gray-600 font-medium flex items-center justify-between select-none">
+        <span>{getBreadcrumbs()}</span>
+        <span className="text-gray-400 text-[10px]">CBS Unified Catalog v4.5</span>
+      </div>
+
+      {/* 4. DOUBLE SIDEBAR + MAIN AREA PANEL */}
       <div className="flex-1 flex overflow-hidden">
         
-        {/* A. Vertical thin utility icon bar */}
-        <div className="w-[45px] bg-[#e4ebf5] border-r border-[#cbd6e2] flex flex-col items-center py-4 gap-4">
-          <div className="w-8 h-8 rounded-lg bg-white border border-[#cbd6e2] flex items-center justify-center text-blue-600 shadow-xs cursor-pointer hover:scale-105 transition-transform">
-            <Search className="w-4 h-4" />
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-white border border-[#cbd6e2] flex items-center justify-center text-blue-600 shadow-xs cursor-pointer hover:scale-105 transition-transform">
-            <FolderTree className="w-4 h-4" />
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-white border border-[#cbd6e2] flex items-center justify-center text-gray-500 cursor-pointer hover:scale-105 transition-transform">
-            <Settings className="w-4 h-4" />
-          </div>
+        {/* A. Thin vertical utility icon bar */}
+        <div className="w-[42px] bg-[#e4ebf5] border-r border-[#cbd6e2] flex flex-col items-center py-3 gap-3 shrink-0">
+          <button
+            onClick={() => navigate('/cbs/inventory')}
+            className="w-7 h-7 rounded-md bg-white border border-[#cbd6e2] flex items-center justify-center text-blue-700 shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            title="Search Inventory"
+          >
+            <Search className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => navigate('/cbs/site-map')}
+            className="w-7 h-7 rounded-md bg-white border border-[#cbd6e2] flex items-center justify-center text-blue-700 shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            title="Site Map Tree"
+          >
+            <FolderTree className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => navigate('/cbs/configure-offering')}
+            className="w-7 h-7 rounded-md bg-white border border-[#cbd6e2] flex items-center justify-center text-gray-600 shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            title="Catalog Settings"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* B. Main Sidebar Pane (Dynamic based on selected header tab) */}
-        <div className="w-64 bg-[#f0f4f8] border-r border-[#cbd6e2] flex flex-col justify-between">
-          <div className="flex-1 py-3 px-2 overflow-y-auto">
-            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-3 mb-2">
-              {activeTab} Menu
-            </div>
-            
-            {activeTab === 'Site Map' ? (
-              // Site Map sidebar items
+        {/* B. Dynamic Expandable Sidebar */}
+        {isSidebarOpen && (
+          <div className="w-60 bg-[#f0f4f8] border-r border-[#cbd6e2] flex flex-col justify-between shadow-2xs">
+            <div className="flex-1 py-3 px-2 overflow-y-auto">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-3 mb-2 flex items-center justify-between">
+                <span>CBS Navigation Menu</span>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="hover:bg-gray-200 p-0.5 rounded cursor-pointer text-gray-500"
+                  title="Collapse Sidebar"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
               <div className="space-y-0.5">
-                {cbsSidebarItems.map((item) => {
-                  const isActive = activeSidebarItem === item;
+                {cbsSidebarItems.map((item, idx) => {
+                  const isActive = location.pathname.includes(item.path);
                   return (
                     <button
-                      key={item}
-                      onClick={() => setActiveSidebarItem(item)}
-                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-md border transition-all duration-150 flex items-center justify-between cursor-pointer ${
+                      key={idx}
+                      onClick={() => handleSidebarClick(item)}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-semibold rounded-md border transition-all duration-150 flex items-center justify-between cursor-pointer ${
                         isActive
-                          ? 'bg-white border-[#cbd6e2] text-blue-900 shadow-xs font-bold'
+                          ? 'bg-white border-[#cbd6e2] text-blue-950 shadow-2xs font-bold'
                           : 'border-transparent text-gray-600 hover:bg-[#e4ebf5] hover:text-gray-900'
                       }`}
                     >
-                      <span>{item}</span>
-                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-700" />}
+                      <span className="truncate">{item.name}</span>
+                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-700 shrink-0" />}
                     </button>
                   );
                 })}
               </div>
-            ) : (
-              // Other tabs show only "Home" button
-              <div className="space-y-1">
-                <button
-                  onClick={() => setActiveSidebarItem('Home')}
-                  className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-md border transition-all duration-150 flex items-center justify-between cursor-pointer ${
-                    activeSidebarItem === 'Home'
-                      ? 'bg-white border-[#cbd6e2] text-blue-900 shadow-xs font-bold'
-                      : 'border-transparent text-gray-600 hover:bg-[#e4ebf5] hover:text-gray-900'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    🏠 Home
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-blue-700" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="p-3 border-t border-[#cbd6e2] bg-[#e4ebf5] text-[10px] text-gray-500 flex items-center justify-between">
-            <span>CBS v3.6.8</span>
-            <span>Huawei 2026</span>
-          </div>
-        </div>
-
-        {/* C. Middle Main Content Area */}
-        <div className="flex-1 bg-white p-0 overflow-y-auto flex flex-col">
-          {activeTab === 'Inventory' || (activeTab === 'Site Map' && activeSidebarItem === 'Inventory') ? (
-            <InventoryManagement />
-          ) : activeTab === 'Site Map' && activeSidebarItem === 'Unified Product Catalog' ? (
-            // 4. MAIN WORKSPACE FOR SITE MAP -> UNIFIED PRODUCT CATALOG
-            <div className="space-y-4">
-              
-              {/* UPC Home Top Bar */}
-              <div className="bg-[#e4ebf5] border border-[#a9bbcf] px-4 py-2 text-xs font-bold text-blue-900 rounded-sm">
-                UPC Home
-              </div>
-
-              {/* Grid of Sections */}
-              <div className="border border-[#b0c4de] rounded-sm shadow-xs overflow-hidden">
-                {upcSections.map((section) => (
-                  <div key={section.title} className="border-b last:border-b-0 border-[#b0c4de]">
-                    
-                    {/* Section title header */}
-                    <div className="bg-[#f0f4f8] px-4 py-1.5 text-xs font-bold text-blue-900 border-b border-[#b0c4de]">
-                      <span>{section.title}</span>
-                    </div>
-
-                    {/* Section items in columns/rows */}
-                    <div className="bg-white p-3">
-                      <div className="grid grid-cols-4 gap-4">
-                        {section.columns.map((col, colIdx) => (
-                          <div key={colIdx} className="space-y-1.5">
-                            {col.map((item, itemIdx) => (
-                              <div key={itemIdx} className="text-xs">
-                                <a 
-                                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`} 
-                                  className="text-blue-700 hover:text-blue-900 hover:underline cursor-pointer"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    alert(`Navigate to: ${item}`);
-                                  }}
-                                >
-                                  {item}
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-
             </div>
-          ) : activeTab === 'Offering(B2C)' ? (
-            // 5. DETAILED SPECIAL OFFER FORM FOR OFFERING(B2C)
-            <div className="space-y-6">
-              
-              <div className="bg-gradient-to-r from-blue-50 to-white border border-[#b0c4de] rounded-sm shadow-xs">
-                
-                {/* Basic Information section */}
-                <div className="border-b border-[#b0c4de]">
-                  <div className="bg-gradient-to-r from-[#e4ebf5] to-white px-4 py-2 text-xs font-bold text-gray-800 border-b border-[#b0c4de] flex items-center justify-between">
-                    <span>📎 Basic Information</span>
-                    <button className="text-xs text-blue-700 hover:underline">✏️ Edit</button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-3 p-4 text-xs">
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Offering ID</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <input type="text" value="47062" className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-48 rounded-sm outline-none" readOnly />
-                        <button className="text-xs text-gray-500 hover:text-gray-700">🔍</button>
-                      </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Offering Name</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <input type="text" value="Ed_Special_Offer" className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-48 rounded-sm outline-none font-medium text-gray-800" readOnly />
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Notification Name</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <input type="text" value="✓" className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-48 rounded-sm outline-none text-green-700 font-bold" readOnly />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Offering Short Name</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <input type="text" value="Ed_Special_Offer" className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-48 rounded-sm outline-none text-gray-800" readOnly />
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Offering Code</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <input type="text" value="549023" className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-48 rounded-sm outline-none" readOnly />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Subscription Offering Type</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <input type="text" value="Supplementary" className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-48 rounded-sm outline-none" readOnly />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Offering Status</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-sm border border-green-200 font-medium">Release</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold mt-1">Description</label>
-                      <div className="flex-1">
-                        <textarea className="border border-gray-300 px-2 py-1 bg-gray-50 text-xs w-full h-16 rounded-sm outline-none resize-none" readOnly placeholder="Enter Special Offer Description..." />
-                        <button className="text-xs text-gray-500 hover:text-gray-700 float-right mt-1">✏️ Edit</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Offering Value section */}
-                <div className="border-b border-[#b0c4de]">
-                  <div className="bg-gradient-to-r from-[#e4ebf5] to-white px-4 py-2 text-xs font-bold text-gray-800 border-b border-[#b0c4de] flex items-center justify-between">
-                    <span>📎 Offering Value</span>
-                    <button className="text-xs text-blue-700 hover:underline">✏️ Edit</button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-3 p-4 text-xs">
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Owner Type</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <select className="border border-gray-300 px-2 py-1 bg-white text-xs w-48 rounded-sm outline-none" disabled>
-                          <option>Subscriber</option>
-                        </select>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Group Offering Type</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <select className="border border-gray-300 px-2 py-1 bg-white text-xs w-48 rounded-sm outline-none" disabled>
-                          <option>Individual offering</option>
-                        </select>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Payment Mode</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <select className="border border-gray-300 px-2 py-1 bg-white text-xs w-48 rounded-sm outline-none" disabled>
-                          <option>All</option>
-                        </select>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Customer Type</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <select className="border border-gray-300 px-2 py-1 bg-white text-xs w-48 rounded-sm outline-none" disabled>
-                          <option>Individual customer</option>
-                        </select>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Network Type</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <select className="border border-gray-300 px-2 py-1 bg-white text-xs w-48 rounded-sm outline-none" disabled>
-                          <option>Unspecified</option>
-                        </select>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <label className="w-36 text-right text-gray-600 font-semibold">Offering Type</label>
-                      <div className="flex items-center gap-2 flex-1">
-                        <select className="border border-gray-300 px-2 py-1 bg-white text-xs w-48 rounded-sm outline-none" disabled>
-                          <option>Simple offering</option>
-                        </select>
-                        <button className="text-xs text-gray-500 hover:text-gray-700">✏️</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Extended Information section */}
-                <div className="bg-[#f0f4f8] px-4 py-2 text-xs font-bold text-gray-800 flex items-center gap-2 cursor-pointer hover:bg-gray-100">
-                  <span>🔍</span>
-                  <span>Extended Information</span>
-                </div>
-
-              </div>
-
+            <div className="p-3 border-t border-[#cbd6e2] bg-[#e4ebf5] text-[10px] text-gray-500 flex items-center justify-between">
+              <span>CBS v3.6.8</span>
+              <span>Huawei 2026</span>
             </div>
-          ) : (
-            // 6. COMING SOON VIEW FOR OTHER SELECTIONS
-            <div className="h-full flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center border border-blue-200 text-blue-500 mb-4 animate-bounce">
-                ⚙️
-              </div>
-              <h3 className="text-lg font-bold text-gray-850 mb-1">Coming Soon</h3>
-              <p className="text-xs text-gray-500 max-w-sm mb-6">
-                The section <strong className="text-gray-700">"{activeSidebarItem}"</strong> under tab <strong className="text-gray-700">"{activeTab}"</strong> is currently in development.
-              </p>
-              <button 
-                onClick={() => handleTabChange('Site Map')} 
-                className="bg-[#4b77b1] hover:bg-[#3b6090] text-white text-xs font-bold px-4 py-2 rounded shadow-xs hover:shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Go to Site Map</span>
-              </button>
+          </div>
+        )}
+
+        {/* Closed Sidebar Expand Button */}
+        {!isSidebarOpen && (
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="absolute left-[42px] top-[140px] z-50 bg-[#e4ebf5] hover:bg-[#d6d8db] border-y border-r border-[#cbd6e2] p-1 rounded-r-md shadow-md cursor-pointer transition-colors"
+            title="Expand Sidebar"
+          >
+            <ChevronRightIcon className="w-4 h-4 text-gray-600" />
+          </button>
+        )}
+
+        {/* C. Middle Main Content Outlet Area */}
+        <div className="flex-1 bg-white p-0 overflow-y-auto relative min-h-[450px]">
+          {isMiddleLoading && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-40 flex flex-col items-center justify-center transition-all duration-200">
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent shadow-md mb-2"></div>
+              <p className="text-xs font-semibold text-gray-700 tracking-wide animate-pulse">Loading Module View...</p>
             </div>
           )}
+          <Outlet />
         </div>
 
       </div>
 
-      <ToastContainer />
     </div>
   );
 }

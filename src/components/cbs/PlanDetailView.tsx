@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { FolderTree, ChevronDown, ChevronRight, Edit3, Plus, Settings } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FolderTree, ChevronDown } from 'lucide-react';
+import { useTabStore } from '@/store/useTabStore';
 import { useToastStore } from '@/store/useToastStore';
 
 export default function PlanDetailView() {
+  const navigate = useNavigate();
+  const addTab = useTabStore((state) => state.addTab);
   const { addToast } = useToastStore();
   const [activeSubTab, setActiveSubTab] = useState<'basic' | 'policy'>('policy');
-  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(true);
 
   const contextMenuItems = [
     'Fold',
@@ -16,29 +20,45 @@ export default function PlanDetailView() {
     'Export in Readable Format'
   ];
 
+  const handleContextMenuClick = (item: string) => {
+    if (item === 'Create Version' || item === 'Unlock') {
+      addTab({
+        id: 'configure-offering',
+        name: 'Configure Offering',
+        path: '/cbs/configure-offering',
+        isClosable: true
+      });
+      addToast(`Action "${item}" triggered! Opening Configure Offering view tab...`, 'success');
+      navigate('/cbs/configure-offering');
+    } else {
+      addToast(`Action "${item}" executed on BDC_Rent_oneoff`, 'info');
+    }
+    setShowContextMenu(false);
+  };
+
   return (
     <div className="flex flex-col h-full bg-[#f3f4f6] text-gray-800 text-xs font-sans p-4 space-y-4">
       {/* Breadcrumb Header */}
       <div className="bg-[#e4ebf5] border border-[#a9bbcf] px-4 py-2 text-xs font-bold text-blue-900 rounded-sm flex items-center justify-between">
         <span>Unified Product Catalog &gt; Catalogs &gt; Plan &gt; <strong className="text-blue-950 font-extrabold">BDC_Rent_oneoff</strong> 🔒</span>
-        <span className="text-[11px] font-normal text-gray-500">Plan Details View</span>
+        <span className="text-[11px] font-normal text-gray-500">Plan Policy Configuration</span>
       </div>
 
-      {/* Main Split Layout: Left Version Tree + Right Details Pane (Pic 2 & 13) */}
+      {/* Main Split Layout: Left Version Tree + Right Details Pane (Image 2) */}
       <div className="flex-1 flex gap-4 overflow-hidden">
         
-        {/* Left Version Tree (Pic 2) */}
-        <div className="w-64 bg-[#f0f4f8] border border-[#cbd6e2] rounded-sm flex flex-col p-2 select-none relative">
+        {/* Left Version Tree (Image 2) */}
+        <div className="w-64 bg-[#f0f4f8] border border-[#cbd6e2] rounded-sm flex flex-col p-2 select-none relative shrink-0">
           <div className="bg-[#e4ebf5] p-2 border-b border-[#cbd6e2] font-bold text-blue-900 flex items-center justify-between">
             <span className="flex items-center gap-1">
               <FolderTree className="w-3.5 h-3.5 text-blue-700" />
-              <span>Versions &amp; Hierarchy</span>
+              <span>BDC_Rent_oneoff</span>
             </span>
           </div>
 
-          <div className="p-2 space-y-1 overflow-y-auto flex-1">
+          <div className="p-2 space-y-1 overflow-y-auto flex-1 text-xs">
             <div className="font-bold text-gray-700 flex items-center gap-1">
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
               <span>All Versions</span>
             </div>
             
@@ -60,18 +80,17 @@ export default function PlanDetailView() {
             </div>
           </div>
 
-          {/* Context Menu Popup (Pic 2) */}
+          {/* Context Menu Popup (Image 2) */}
           {showContextMenu && (
             <div 
-              className="absolute left-6 top-16 bg-white border border-gray-400 shadow-xl rounded-sm py-1 z-50 w-48 text-xs"
-              onClick={() => setShowContextMenu(false)}
+              className="absolute left-6 top-16 bg-white border border-gray-400 shadow-xl rounded-sm py-1 z-50 w-52 text-xs"
             >
-              {contextMenuItems.map((item, idx) => (
+              {contextMenuItems.map((item) => (
                 <div 
                   key={item}
-                  onClick={() => addToast(`Action triggered: ${item}`, 'info')}
-                  className={`px-3 py-1.5 hover:bg-blue-50 cursor-pointer ${
-                    item === 'Create Version' ? 'text-blue-900 font-bold bg-blue-50/50' : 'text-gray-700'
+                  onClick={() => handleContextMenuClick(item)}
+                  className={`px-3 py-1.5 cursor-pointer font-medium transition-colors ${
+                    item === 'Create Version' ? 'text-white font-bold bg-[#1d5b96]' : 'text-gray-800 hover:bg-blue-50'
                   }`}
                 >
                   {item}
@@ -81,11 +100,11 @@ export default function PlanDetailView() {
           )}
         </div>
 
-        {/* Right Details Content Pane (Pic 2) */}
+        {/* Right Details Content Pane (Image 2) */}
         <div className="flex-1 bg-white border border-[#b0c4de] rounded-sm p-4 overflow-y-auto flex flex-col space-y-4">
           
           {/* Main Tabs Row */}
-          <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-2 pt-1.5 flex items-center gap-1">
+          <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-2 pt-1.5 flex items-center gap-1 select-none">
             <button
               onClick={() => setActiveSubTab('basic')}
               className={`px-4 py-1.5 text-xs font-semibold rounded-t border-t border-x cursor-pointer ${
@@ -104,17 +123,17 @@ export default function PlanDetailView() {
             </button>
           </div>
 
-          {/* Table 1: Recurring Charge... (Pic 2) */}
-          <div className="border border-[#b0c4de] rounded-sm bg-white overflow-hidden shadow-xs">
+          {/* Table 1: Recurring Charg... (Image 2) */}
+          <div className="border border-[#b0c4de] rounded-sm bg-white overflow-hidden shadow-2xs">
             <div className="bg-[#f0f4f8] px-4 py-2 border-b border-[#b0c4de] font-bold text-gray-800 flex items-center justify-between">
-              <span className="text-blue-900">Recurring Charg...</span>
+              <span className="text-blue-900 font-extrabold">Recurring Charg...</span>
               <span className="text-[11px] text-gray-500 font-normal">Total records: 1</span>
             </div>
 
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#e4ebf5] border-b border-[#a9bbcf] text-blue-950 font-bold">
-                  <th className="p-2 border-r border-[#a9bbcf]">Customized</th>
+                  <th className="p-2 border-r border-[#a9bbcf] w-24">Customized</th>
                   <th className="p-2 border-r border-[#a9bbcf]">Recurring Charge</th>
                   <th className="p-2 border-r border-[#a9bbcf]">Currency Unit</th>
                   <th className="p-2">Charge Code</th>
@@ -134,26 +153,26 @@ export default function PlanDetailView() {
               <div>Total records: 1</div>
               <div className="flex items-center gap-1">
                 <span>10 records/page</span>
-                <button className="px-1 py-0.5 border bg-white" disabled>|&lt;</button>
-                <button className="px-1 py-0.5 border bg-white" disabled>&lt;</button>
-                <span className="font-bold text-blue-900">1 / 1 Go</span>
-                <button className="px-1 py-0.5 border bg-white" disabled>&gt;</button>
-                <button className="px-1 py-0.5 border bg-white" disabled>&gt;|</button>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>|&lt;</button>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&lt;</button>
+                <span className="px-1 font-bold text-blue-900">1 / 1 Go</span>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;</button>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;|</button>
               </div>
             </div>
           </div>
 
-          {/* Table 2: Free Unit Bonus... (Pic 2) */}
-          <div className="border border-[#b0c4de] rounded-sm bg-white overflow-hidden shadow-xs">
+          {/* Table 2: Free Unit Bonus ... (Image 2) */}
+          <div className="border border-[#b0c4de] rounded-sm bg-white overflow-hidden shadow-2xs">
             <div className="bg-[#f0f4f8] px-4 py-2 border-b border-[#b0c4de] font-bold text-gray-800 flex items-center justify-between">
-              <span className="text-blue-900">Free Unit Bonus ...</span>
+              <span className="text-blue-900 font-extrabold">Free Unit Bonus ...</span>
               <span className="text-[11px] text-gray-500 font-normal">Total records: 3</span>
             </div>
 
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-[#e4ebf5] border-b border-[#a9bbcf] text-blue-950 font-bold">
-                  <th className="p-2 border-r border-[#a9bbcf]">Customized</th>
+                  <th className="p-2 border-r border-[#a9bbcf] w-24">Customized</th>
                   <th className="p-2 border-r border-[#a9bbcf]">Free Unit Type</th>
                   <th className="p-2 border-r border-[#a9bbcf]">Bonus Amount</th>
                   <th className="p-2 border-r border-[#a9bbcf]">New Instance Flag</th>
@@ -197,11 +216,11 @@ export default function PlanDetailView() {
               <div>Total records: 1</div>
               <div className="flex items-center gap-1">
                 <span>10 records/page</span>
-                <button className="px-1 py-0.5 border bg-white" disabled>|&lt;</button>
-                <button className="px-1 py-0.5 border bg-white" disabled>&lt;</button>
-                <span className="font-bold text-blue-900">1 / 1 Go</span>
-                <button className="px-1 py-0.5 border bg-white" disabled>&gt;</button>
-                <button className="px-1 py-0.5 border bg-white" disabled>&gt;|</button>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>|&lt;</button>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&lt;</button>
+                <span className="px-1 font-bold text-blue-900">1 / 1 Go</span>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;</button>
+                <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;|</button>
               </div>
             </div>
           </div>

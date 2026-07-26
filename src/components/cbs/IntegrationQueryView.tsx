@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 
 export default function IntegrationQueryView() {
@@ -12,35 +12,35 @@ export default function IntegrationQueryView() {
         Customer Care &gt; Point of Sale &gt; <strong className="text-blue-900">Integration Query</strong>
       </div>
 
-      {/* Search criteria box */}
-      <div className="border border-[#b0c4de] rounded-sm bg-[#f9fafb]">
+      {/* Search criteria box (Image 1) */}
+      <div className="border border-[#b0c4de] rounded-sm bg-[#f9fafb] shadow-2xs">
         <div className="bg-[#e4ebf5] px-3 py-1 font-bold text-blue-900 border-b border-[#b0c4de]">
           ▶ Search Criteria
         </div>
         <div className="p-3 grid grid-cols-4 gap-3 text-xs">
           <div className="flex items-center gap-2">
             <label className="w-24 text-right font-semibold">Service No:</label>
-            <input type="text" defaultValue="1511510579" className="border px-2 py-1 bg-white rounded flex-1 outline-none" />
+            <input type="text" defaultValue="1511510579" className="border px-2 py-1 bg-white rounded flex-1 outline-none focus:border-blue-500" />
           </div>
           <div className="flex items-center gap-2">
             <label className="w-24 text-right font-semibold">Subscriber ID:</label>
-            <input type="text" placeholder="Optional" className="border px-2 py-1 bg-white rounded flex-1 outline-none" />
+            <input type="text" placeholder="Optional" className="border px-2 py-1 bg-white rounded flex-1 outline-none focus:border-blue-500" />
           </div>
           <div className="flex items-center justify-end gap-2 col-span-2">
             <button 
               onClick={() => addToast('Search executed for Service No 1511510579', 'info')}
-              className="bg-[#337ab7] text-white px-4 py-1 rounded font-semibold hover:bg-[#286090]"
+              className="bg-[#337ab7] text-white px-4 py-1 rounded font-semibold hover:bg-[#286090] cursor-pointer"
             >
               Search
             </button>
-            <button className="bg-gray-200 px-4 py-1 rounded hover:bg-gray-300">Reset</button>
+            <button className="bg-gray-200 px-4 py-1 rounded hover:bg-gray-300 cursor-pointer">Reset</button>
           </div>
         </div>
       </div>
 
-      {/* Top Result Table with Customer / Subscriber / Account Tabs (Matching Pic 6) */}
-      <div className="border border-[#b0c4de] rounded-sm bg-white overflow-hidden flex flex-col">
-        <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-3 pt-1.5 flex items-center gap-1">
+      {/* Top Result Table with Customer / Subscriber / Account Tabs (Image 1) */}
+      <div className="border border-[#b0c4de] rounded-sm bg-white overflow-hidden flex flex-col shadow-2xs">
+        <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-3 pt-1.5 flex items-center gap-1 select-none">
           {['customer', 'account', 'subscriber', 'order', 'log'].map(tab => (
             <button
               key={tab}
@@ -57,7 +57,7 @@ export default function IntegrationQueryView() {
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-[#e4ebf5] border-b border-[#a9bbcf] text-blue-950 font-bold">
-              <th className="p-2 border-r border-[#a9bbcf] w-8"></th>
+              <th className="p-2 border-r border-[#a9bbcf] w-8 text-center"></th>
               <th className="p-2 border-r border-[#a9bbcf]">Subscriber ID / No</th>
               <th className="p-2 border-r border-[#a9bbcf]">Offering Name</th>
               <th className="p-2 border-r border-[#a9bbcf]">Brand</th>
@@ -74,7 +74,7 @@ export default function IntegrationQueryView() {
               <td className="p-2">Prepaid</td>
               <td className="p-2 font-bold text-red-700">Call Barring</td>
             </tr>
-            <tr className="border-b border-gray-200 hover:bg-blue-50">
+            <tr className="border-b border-gray-200 hover:bg-blue-50 bg-blue-50/40">
               <td className="p-2 text-center"><input type="radio" name="iqSelect" defaultChecked /></td>
               <td className="p-2 font-mono text-blue-800 font-medium">1922991720</td>
               <td className="p-2">Teletalk_Prepaid</td>
@@ -92,11 +92,23 @@ export default function IntegrationQueryView() {
             </tr>
           </tbody>
         </table>
+
+        <div className="bg-[#f0f4f8] px-4 py-1.5 border-t border-[#b0c4de] flex items-center justify-between text-[11px] text-gray-600">
+          <div>Total records: <strong>3</strong></div>
+          <div className="flex items-center gap-1">
+            <span>10 records/page</span>
+            <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>|&lt;</button>
+            <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&lt;</button>
+            <span className="px-1 font-bold text-blue-900">1 / 1 Go</span>
+            <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;</button>
+            <button className="px-1.5 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;|</button>
+          </div>
+        </div>
       </div>
 
-      {/* Lower Sub-tabs Panel (Exact layout from Pic 6) */}
-      <div className="border border-[#b0c4de] rounded-sm bg-white flex flex-col flex-1">
-        <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-3 pt-1.5 flex items-center gap-1 overflow-x-auto">
+      {/* Lower Sub-tabs Panel (Matching Image 1) */}
+      <div className="border border-[#b0c4de] rounded-sm bg-white flex flex-col flex-1 shadow-2xs">
+        <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-3 pt-1.5 flex items-center gap-1 overflow-x-auto select-none">
           {[
             { id: 'info', label: 'Subscriber Information' },
             { id: 'offering', label: 'Offering' },
@@ -127,64 +139,84 @@ export default function IntegrationQueryView() {
               </div>
 
               <div className="grid grid-cols-3 gap-y-4 gap-x-6 text-xs">
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Life Cycle Status</span>
-                  <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">Call Barring</span>
+                {/* Column 1 */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Life Cycle Status</span>
+                    <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">Call Barring</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Call Barring Stop</span>
+                    <span className="font-mono text-red-700 font-medium">2026-08-23 23:59:59</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Inventory Stop</span>
+                    <span className="text-gray-700 font-medium">--</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Customer Suspension</span>
+                    <span className="text-gray-800">Barring</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Suspension on Outstanding</span>
+                    <span className="text-gray-800">Normal</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Operator Suspension</span>
+                    <span className="text-gray-800">Normal</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Activation Time</span>
-                  <span className="font-mono">2020-11-02 12:45:47</span>
+                {/* Column 2 */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Activation Time</span>
+                    <span className="font-mono">2020-11-02 12:45:47</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Suspend Stop</span>
+                    <span className="font-mono text-amber-700">2026-09-22 23:59:59</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Pool Stop</span>
+                    <span className="text-gray-500">--</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Customer Suspension End Date</span>
+                    <span className="text-gray-500">--</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Suspension on Credit Control</span>
+                    <span className="text-gray-800">Normal</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Recharge Black List</span>
+                    <span className="text-green-700 font-bold">No</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Active Stop</span>
-                  <span className="font-mono text-green-700 font-medium">2026-07-24 23:59:59</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Call Barring Stop</span>
-                  <span className="font-mono text-red-700 font-medium">2026-08-23 23:59:59</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Suspend Stop</span>
-                  <span className="font-mono text-amber-700">2026-09-22 23:59:59</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Test Stop</span>
-                  <span className="text-gray-500">Unspecified</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Inventory Stop</span>
-                  <span className="text-gray-700 font-medium">Normal</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Pool Stop</span>
-                  <span className="text-gray-500">None</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Deactivation Stop</span>
-                  <span className="text-gray-500">Unspecified</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Customer Suspension</span>
-                  <span className="text-gray-800">Barring</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Customer Suspension End Date</span>
-                  <span className="text-gray-500">--</span>
-                </div>
-
-                <div className="flex items-center justify-between border-b pb-1">
-                  <span className="text-gray-600 font-semibold">Missing Claim</span>
-                  <span className="text-gray-800 font-medium">Normal</span>
+                {/* Column 3 */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Active Stop</span>
+                    <span className="font-mono text-green-700 font-medium">2026-07-24 23:59:59</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Test Stop</span>
+                    <span className="text-gray-500">--</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Deactivation Stop</span>
+                    <span className="text-gray-500">--</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Missing Claim</span>
+                    <span className="text-gray-800 font-medium">Normal</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="text-gray-600 font-semibold">Life Status Suspension</span>
+                    <span className="text-gray-800 font-medium">Normal</span>
+                  </div>
                 </div>
               </div>
             </div>

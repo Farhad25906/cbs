@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTabStore } from '@/store/useTabStore';
 import { 
   Search, 
   FolderTree, 
@@ -223,7 +225,15 @@ const initialInventoryItems: InventoryItem[] = [
 ];
 
 export default function InventoryManagement() {
+  const navigate = useNavigate();
+  const addTab = useTabStore((state) => state.addTab);
   const { addToast } = useToastStore();
+
+  const openInTab = (path: string, name: string, id: string) => {
+    addTab({ id, name, path, isClosable: true });
+    addToast(`Opening ${name} in tab...`, 'info');
+    navigate(path);
+  };
 
   // Active Sub-Tab / View Mode inside Inventory
   const [viewMode, setViewMode] = useState<
