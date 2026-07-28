@@ -12,8 +12,14 @@ import {
   FolderTree, 
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
-  HelpCircle
+  HelpCircle,
+  User,
+  LogOut,
+  Bell,
+  ChevronDown,
+  ArrowLeft
 } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 export default function CBSDashboard() {
   const navigate = useNavigate();
@@ -30,6 +36,8 @@ export default function CBSDashboard() {
   // Time & Sidebar state
   const [currentTime, setCurrentTime] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [isMiddleLoading, setIsMiddleLoading] = useState(false);
 
   // Sidebar items for CBS Site Map
@@ -55,6 +63,27 @@ export default function CBSDashboard() {
     setIsMiddleLoading(true);
     const timer = setTimeout(() => setIsMiddleLoading(false), 200);
     return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  // Load current user from localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem('currentUser');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    } else {
+      // Fallback - redirect to login if no user
+      navigate('/');
+    }
+  }, [navigate]);
+
+  // Adjust sidebar defaults: open on site-map, collapsed on detail forms
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/cbs/site-map')) {
+      setIsSidebarOpen(true);
+    } else {
+      setIsSidebarOpen(false);
+    }
   }, [location.pathname]);
 
   // Keep clock updated
@@ -125,6 +154,22 @@ export default function CBSDashboard() {
     navigate(item.path);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    useCRMStore.getState().logout();
+    navigate('/');
+  };
+
+  const getUserInitials = () => {
+    if (!currentUser) return 'U';
+    const name = currentUser.name || 'User';
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   const getBreadcrumbs = () => {
     const path = location.pathname;
     if (path.includes('/cbs/eid-special-offer')) {
@@ -179,83 +224,155 @@ export default function CBSDashboard() {
     return 'Unified Product Catalog > Catalogs > Site Map';
   };
 
+  // Check if user is logged in, if not show loading or redirect
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f3f4f6] text-gray-800 flex flex-col font-sans select-none">
       <ToastContainer />
 
       {/* 1. TOP HEADER BRAND BAR */}
-      <div className="bg-gradient-to-r from-[#4b77b1] via-[#6f9fdc] to-[#4b77b1] border-b border-[#3b5e91] px-3 py-1 flex items-center justify-between text-white shadow-xs">
-        <div className="flex items-center gap-3">
-          {/* Huawei style Logo */}
+      <div className="bg-[#fcfdfd] border-b border-gray-300 px-4 py-1.5 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-2.5">
+          {/* Logo from CBS assets */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/cbs/site-map')}>
-            <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 50 C40 30, 20 40, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C60 30, 80 40, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C50 20, 40 10, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C50 20, 60 10, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C30 40, 15 60, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C70 40, 85 60, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C40 70, 30 90, 50 50 Z" fill="#e53935" />
-              <path d="M50 50 C60 70, 70 90, 50 50 Z" fill="#e53935" />
-              <circle cx="50" cy="50" r="8" fill="#ffffff" />
-            </svg>
-            <span className="text-xl font-bold tracking-tight text-white leading-none">CBS</span>
+            <img src={logoImg} alt="Teletalk Logo" className="h-8 object-contain" />
           </div>
 
-          {/* Blue Dropdown Orb */}
+          {/* Orange Dropdown Orb (Also toggles sidebar) */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            title="Toggle Menu"
-            className="w-4 h-4 rounded-full bg-[#337ab7] hover:bg-[#286090] flex items-center justify-center text-white border border-[#2e6da4] shadow-xs cursor-pointer ml-1"
+            title="Toggle Sidebar Menu"
+            className="w-5 h-5 rounded-full bg-[#f0ad4e] hover:bg-[#ec971f] flex items-center justify-center text-white shadow-xs cursor-pointer ml-1 transition-transform active:scale-95 border border-[#ec971f]"
           >
-            <span className="text-[8px]">▼</span>
+            <span className="text-[10px] text-white font-bold">▼</span>
           </button>
         </div>
 
         {/* Right Info Controls */}
-        <div className="flex items-center gap-4 text-[11px] text-blue-50 font-medium">
+        <div className="flex items-center gap-4 text-[11px] text-gray-600 font-medium">
           <div className="flex items-center gap-1">
-            <span className="text-blue-100">Project</span>
-            <select className="border border-[#3b5e91] px-2 py-0.5 rounded-sm bg-white text-gray-800 text-[11px] h-6 outline-none focus:border-blue-400">
-              <option value="tele_proj">Project</option>
+            <span>Project</span>
+            <select className="border border-gray-300 px-2 py-0.5 rounded-sm bg-white text-[11px] h-6 outline-none focus:border-cyan-500">
+              <option value="teletalk">Teletalk Project</option>
+              <option value="mvne">MVNE System</option>
             </select>
           </div>
           
-          <div className="flex items-center gap-1.5 bg-[#3a6192]/40 px-2.5 py-1 rounded-md border border-[#3b5e91]">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <div className="flex items-center gap-1.5 bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             <span>Root (UTC+6, {currentTime || '2026-07-21 13:19:12'})</span>
-            <Info className="w-3.5 h-3.5 text-blue-200 cursor-pointer hover:text-white" />
+            <Info className="w-3.5 h-3.5 text-gray-400 cursor-pointer hover:text-gray-600" />
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="bg-[#428bca] text-white px-2 py-0.5 rounded-sm text-[9px] font-bold border border-[#357ebd]">MVNE</span>
-            <span className="text-yellow-200 font-semibold cursor-pointer hover:underline">benozir</span>
+            <span className="bg-[#f0ad4e] text-white px-2 py-0.5 rounded-sm text-[9px] font-bold tracking-wider">MVNE</span>
+            
+            {/* User Profile Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center gap-2 hover:bg-gray-100 px-2 py-1 rounded-md transition-colors"
+              >
+                <div className="w-6 h-6 rounded-full bg-[#2e7d32] text-white flex items-center justify-center text-xs font-bold">
+                  {getUserInitials()}
+                </div>
+                <span className="text-[#c9302c] font-semibold">
+                  {currentUser?.name || 'User'}
+                </span>
+                <ChevronDown className="w-3 h-3 text-gray-400" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-semibold text-gray-800">{currentUser?.name || 'User'}</p>
+                    <p className="text-xs text-gray-500">@{currentUser?.username || 'username'}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                      {currentUser?.role || 'User'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      navigate('/cbs/site-map');
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    My Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      navigate('/cbs/site-map');
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      navigate('/cbs/site-map');
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <Bell className="w-4 h-4" />
+                    Notifications
+                  </button>
+                  <div className="border-t border-gray-100 mt-1 pt-1">
+                    <button
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <button 
             onClick={() => {
-              useCRMStore.getState().logout();
-              navigate('/login');
+              handleLogout();
             }} 
-            className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800 text-white px-2.5 py-1 rounded-sm border border-blue-800 transition-colors cursor-pointer"
+            className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-sm border border-gray-300 transition-colors cursor-pointer"
           >
-            <span>Logout</span>
+            <ArrowLeft className="w-3 h-3" />
+            <span>Switch System</span>
           </button>
         </div>
       </div>
 
       {/* 2. TABS ROW */}
-      <div className="bg-[#d9e2ec] border-b border-[#a9bbcf] px-3 pt-1.5 flex items-end justify-between shadow-xs">
+      <div className="bg-[#e4e6e9] border-b border-gray-300 px-4 pt-1 flex items-end justify-between shadow-inner">
         <div className="flex items-end gap-1 overflow-x-auto select-none">
           {openTabs.map((tab) => {
             const isActive = activeTabId === tab.id;
             return (
               <div
                 key={tab.id}
-                className={`group flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-t-md border-t border-x transition-all duration-150 relative ${
+                className={`group flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-t-md border-t border-x transition-all duration-150 relative ${
                   isActive
-                    ? 'bg-white text-blue-950 border-[#a9bbcf] font-bold border-b-white z-10 shadow-2xs'
-                    : 'bg-[#e3ecf5] hover:bg-white text-gray-700 border-transparent hover:border-gray-300'
+                    ? 'bg-white text-[#c9302c] border-gray-300 font-bold border-b-white z-10 shadow-xs'
+                    : 'bg-[#f4f5f7] hover:bg-white text-gray-700 border-transparent hover:border-gray-200 hover:text-gray-900 border-b-gray-300'
                 }`}
               >
                 <button
@@ -301,33 +418,47 @@ export default function CBSDashboard() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* A. Thin vertical utility icon bar */}
-        <div className="w-[42px] bg-[#e4ebf5] border-r border-[#cbd6e2] flex flex-col items-center py-3 gap-3 shrink-0">
-          <button
-            onClick={() => navigate('/cbs/inventory')}
-            className="w-7 h-7 rounded-md bg-white border border-[#cbd6e2] flex items-center justify-center text-blue-700 shadow-2xs cursor-pointer hover:scale-105 transition-transform"
-            title="Search Inventory"
-          >
-            <Search className="w-3.5 h-3.5" />
-          </button>
+        <div className="w-[36px] bg-[#dfdfdf] border-r border-[#cfd2d7] flex flex-col items-center py-3 gap-3 shrink-0 select-none">
+          {/* Orange User Avatar Orb */}
           <button
             onClick={() => navigate('/cbs/site-map')}
-            className="w-7 h-7 rounded-md bg-white border border-[#cbd6e2] flex items-center justify-center text-blue-700 shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            className="w-6 h-6 rounded-full bg-[#f0ad4e] hover:bg-[#ec971f] flex items-center justify-center text-white font-bold text-xs shadow-xs cursor-pointer transition-transform active:scale-95 border border-[#ec971f]"
+            title="User Profile"
+          >
+            <User className="w-3.5 h-3.5 text-white" />
+          </button>
+
+          {/* Search Magnifying Glass Icon Button */}
+          <button
+            onClick={() => navigate('/cbs/inventory')}
+            className="w-6 h-6 rounded-md bg-transparent hover:bg-gray-300/70 flex items-center justify-center text-amber-700 cursor-pointer transition-colors"
+            title="Search Inventory"
+          >
+            <Search className="w-3.5 h-3.5 text-amber-700" />
+          </button>
+
+          {/* Site Map Folder Tree Button */}
+          <button
+            onClick={() => navigate('/cbs/site-map')}
+            className="w-6 h-6 rounded-md bg-transparent hover:bg-gray-300/70 flex items-center justify-center text-gray-700 cursor-pointer transition-colors"
             title="Site Map Tree"
           >
-            <FolderTree className="w-3.5 h-3.5" />
+            <FolderTree className="w-3.5 h-3.5 text-gray-700" />
           </button>
+
+          {/* Catalog Settings Button */}
           <button
             onClick={() => navigate('/cbs/configure-offering')}
-            className="w-7 h-7 rounded-md bg-white border border-[#cbd6e2] flex items-center justify-center text-gray-600 shadow-2xs cursor-pointer hover:scale-105 transition-transform"
+            className="w-6 h-6 rounded-md bg-transparent hover:bg-gray-300/70 flex items-center justify-center text-gray-700 cursor-pointer transition-colors"
             title="Catalog Settings"
           >
-            <Settings className="w-3.5 h-3.5" />
+            <Settings className="w-3.5 h-3.5 text-gray-700" />
           </button>
         </div>
 
         {/* B. Dynamic Expandable Sidebar */}
         {isSidebarOpen && (
-          <div className="w-60 bg-[#f0f4f8] border-r border-[#cbd6e2] flex flex-col justify-between shadow-2xs">
+          <div className="w-64 bg-[#f8f9fa] border-r border-gray-300 flex flex-col justify-between shadow-xs transition-all duration-300 animate-slide-in-left">
             <div className="flex-1 py-3 px-2 overflow-y-auto">
               <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-3 mb-2 flex items-center justify-between">
                 <span>CBS Navigation Menu</span>
@@ -340,39 +471,39 @@ export default function CBSDashboard() {
                 </button>
               </div>
 
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {cbsSidebarItems.map((item, idx) => {
                   const isActive = location.pathname.includes(item.path);
                   return (
                     <button
                       key={idx}
                       onClick={() => handleSidebarClick(item)}
-                      className={`w-full text-left px-3 py-1.5 text-xs font-semibold rounded-md border transition-all duration-150 flex items-center justify-between cursor-pointer ${
+                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-md border transition-all duration-150 flex items-center justify-between cursor-pointer ${
                         isActive
-                          ? 'bg-white border-[#cbd6e2] text-blue-950 shadow-2xs font-bold'
-                          : 'border-transparent text-gray-600 hover:bg-[#e4ebf5] hover:text-gray-900'
+                          ? 'bg-white border-gray-300 text-gray-900 shadow-sm font-bold'
+                          : 'border-transparent text-gray-600 hover:bg-gray-200 hover:text-gray-900'
                       }`}
                     >
                       <span className="truncate">{item.name}</span>
-                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-700 shrink-0" />}
+                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-red-500 shrink-0" />}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="p-3 border-t border-[#cbd6e2] bg-[#e4ebf5] text-[10px] text-gray-500 flex items-center justify-between">
+            <div className="p-3 border-t border-gray-200 bg-[#f1f3f5] text-[10px] text-gray-500 flex items-center justify-between">
               <span>CBS v3.6.8</span>
               <span>Huawei 2026</span>
             </div>
           </div>
         )}
 
-        {/* Closed Sidebar Expand Button */}
+        {/* Closed Sidebar Floating Button indicator */}
         {!isSidebarOpen && (
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="absolute left-[42px] top-[140px] z-50 bg-[#e4ebf5] hover:bg-[#d6d8db] border-y border-r border-[#cbd6e2] p-1 rounded-r-md shadow-md cursor-pointer transition-colors"
+            className="absolute left-[36px] top-[140px] z-50 bg-[#e4e6e9] hover:bg-[#d6d8db] border-y border-r border-gray-300 p-1 rounded-r-md shadow-md cursor-pointer transition-colors"
             title="Expand Sidebar"
           >
             <ChevronRightIcon className="w-4 h-4 text-gray-600" />
@@ -382,8 +513,8 @@ export default function CBSDashboard() {
         {/* C. Middle Main Content Outlet Area */}
         <div className="flex-1 bg-white p-0 overflow-y-auto relative min-h-[450px]">
           {isMiddleLoading && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-40 flex flex-col items-center justify-center transition-all duration-200">
-              <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent shadow-md mb-2"></div>
+            <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px] z-40 flex flex-col items-center justify-center transition-all duration-200">
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent shadow-md mb-3"></div>
               <p className="text-xs font-semibold text-gray-700 tracking-wide animate-pulse">Loading Module View...</p>
             </div>
           )}

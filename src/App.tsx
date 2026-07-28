@@ -24,10 +24,14 @@ export default function App() {
     <Router>
       {!isLoggedIn ? (
         <Routes>
-          <Route path="*" element={<Login />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       ) : (
         <Routes>
+          <Route path="/" element={<Navigate to="/cbs/site-map" replace />} />
+          <Route path="/login" element={<Navigate to="/cbs/site-map" replace />} />
           <Route path="/cbs" element={<CBSDashboard />}>
             <Route index element={<Navigate to="site-map" replace />} />
             <Route path="site-map" element={<CBSSiteMap />} />

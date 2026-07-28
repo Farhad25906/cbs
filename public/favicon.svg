@@ -1,4 +1,15 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="32" height="32" fill="#0A0B0D"/>
-<path d="M26.6677 23.7149H8.38057V20.6496H5.33301V8.38159H26.6677V23.7149ZM8.38057 20.6496H23.6201V11.4482H8.38057V20.6496ZM16.0011 16.0021L13.8461 18.1705L11.6913 16.0021L13.8461 13.8337L16.0011 16.0021ZM22.0963 16.0008L19.9414 18.1691L17.7865 16.0008L19.9414 13.8324L22.0963 16.0008Z" fill="#32F08C"/>
+<svg width="32" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 28C10 24 22 16 38 4C28 14 18 22 8 28Z" fill="url(#leaf-grad-1)"/>
+  <path d="M6 30C16 26 28 16 38 10C28 18 16 26 8 30Z" fill="url(#leaf-grad-2)"/>
+  <path d="M10 31C20 28 30 20 38 16C28 22 18 28 12 31Z" fill="#2e7d32"/>
+  <defs>
+    <linearGradient id="leaf-grad-1" x1="0" y1="0" x2="40" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#66bb6a" />
+      <stop offset="1" stop-color="#2e7d32" />
+    </linearGradient>
+    <linearGradient id="leaf-grad-2" x1="0" y1="0" x2="40" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a5d6a7" />
+      <stop offset="1" stop-color="#43a047" />
+    </linearGradient>
+  </defs>
 </svg>
