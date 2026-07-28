@@ -130,7 +130,7 @@ export const useCRMStore = create<CRMStore>((set, get) => ({
   orders: mockOrders,
   complaints: mockComplaints,
   currentCustomer: null,
-  isLoggedIn: typeof localStorage !== 'undefined' ? localStorage.getItem('cbs_isLoggedIn') !== 'false' : true,
+  isLoggedIn: false,
   selectedSystem: 'cbs',
   setCurrentCustomer: (customer) => set({ currentCustomer: customer }),
   searchCustomerByMobile: (mobile) => {
