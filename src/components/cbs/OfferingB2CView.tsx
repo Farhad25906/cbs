@@ -15,6 +15,7 @@ export default function OfferingB2CView() {
   const [offeringCode, setOfferingCode] = useState('');
   const [isFuzzy, setIsFuzzy] = useState(false);
   const [selectedTreeCategory, setSelectedTreeCategory] = useState('Offering (510)');
+  const [hasSearched, setHasSearched] = useState(false);
 
   const mockOfferings = [
     {
@@ -66,6 +67,41 @@ export default function OfferingB2CView() {
       catalog: 'Catalogs'
     }
   ];
+
+  const handleSearch = () => {
+    setHasSearched(true);
+    addToast('Search executed for Offering(B2C)', 'info');
+  };
+
+  const handleReset = () => {
+    setOfferingId('');
+    setOfferingName('');
+    setOfferingShortName('');
+    setOfferingCode('');
+    setHasSearched(false);
+    addToast('Reset search parameters', 'info');
+  };
+
+  const filteredOfferings = hasSearched
+    ? mockOfferings.filter((item) => {
+        const matchId =
+          !offeringId.trim() ||
+          (isFuzzy
+            ? item.id.toLowerCase().includes(offeringId.trim().toLowerCase())
+            : item.id.toLowerCase() === offeringId.trim().toLowerCase());
+        const matchName =
+          !offeringName.trim() ||
+          item.name.toLowerCase().includes(offeringName.trim().toLowerCase());
+        const matchShortName =
+          !offeringShortName.trim() ||
+          item.shortName.toLowerCase().includes(offeringShortName.trim().toLowerCase());
+        const matchCode =
+          !offeringCode.trim() ||
+          item.code.toLowerCase().includes(offeringCode.trim().toLowerCase());
+
+        return matchId && matchName && matchShortName && matchCode;
+      })
+    : [];
 
   const handleOpenOfferingDetail = (item: typeof mockOfferings[0]) => {
     if (item.name === 'BDC_Rent_oneoff') {
@@ -188,6 +224,7 @@ export default function OfferingB2CView() {
                   type="text" 
                   value={offeringId}
                   onChange={(e) => setOfferingId(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="e.g. 477062" 
                   className="flex-1 border border-gray-300 px-2 py-1 bg-white rounded-sm outline-none focus:border-blue-500" 
                 />
@@ -199,6 +236,7 @@ export default function OfferingB2CView() {
                   type="text" 
                   value={offeringName}
                   onChange={(e) => setOfferingName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="e.g. Eid_Special_Offer" 
                   className="flex-1 border border-gray-300 px-2 py-1 bg-white rounded-sm outline-none focus:border-blue-500" 
                 />
@@ -210,6 +248,7 @@ export default function OfferingB2CView() {
                   type="text" 
                   value={offeringShortName}
                   onChange={(e) => setOfferingShortName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Short Name" 
                   className="flex-1 border border-gray-300 px-2 py-1 bg-white rounded-sm outline-none focus:border-blue-500" 
                 />
@@ -221,6 +260,7 @@ export default function OfferingB2CView() {
                   type="text" 
                   value={offeringCode}
                   onChange={(e) => setOfferingCode(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Code e.g. S49023" 
                   className="flex-1 border border-gray-300 px-2 py-1 bg-white rounded-sm outline-none focus:border-blue-500" 
                 />
@@ -228,20 +268,14 @@ export default function OfferingB2CView() {
 
               <div className="col-span-2 flex items-center justify-end gap-2 pt-1 border-t border-gray-200">
                 <button 
-                  onClick={() => addToast('Search executed for Offering(B2C)', 'info')}
+                  onClick={handleSearch}
                   className="bg-[#337ab7] hover:bg-[#286090] text-white px-4 py-1 rounded-sm font-semibold border border-[#2e6da4] flex items-center gap-1 cursor-pointer"
                 >
                   <Search className="w-3.5 h-3.5" />
                   <span>Search</span>
                 </button>
                 <button 
-                  onClick={() => {
-                    setOfferingId('');
-                    setOfferingName('');
-                    setOfferingShortName('');
-                    setOfferingCode('');
-                    addToast('Reset search parameters', 'info');
-                  }}
+                  onClick={handleReset}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded-sm font-semibold border border-gray-300 cursor-pointer"
                 >
                   Reset
@@ -286,52 +320,62 @@ export default function OfferingB2CView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockOfferings.map((item, index) => (
-                    <tr 
-                      key={item.id} 
-                      className={`border-b border-gray-200 text-xs hover:bg-blue-50/70 transition-colors cursor-pointer ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-[#f9fafb]'
-                      }`}
-                      onClick={() => handleOpenOfferingDetail(item)}
-                    >
-                      <td className="p-2 border-r border-gray-200 text-center" onClick={(e) => e.stopPropagation()}>
-                        <input type="checkbox" />
-                      </td>
-                      <td className="p-2 border-r border-gray-200 font-mono text-blue-800 font-semibold">{item.id}</td>
-                      <td className="p-2 border-r border-gray-200 font-bold text-blue-900 hover:underline">{item.name}</td>
-                      <td className="p-2 border-r border-gray-200">{item.paymentMode}</td>
-                      <td className="p-2 border-r border-gray-200">{item.type}</td>
-                      <td className="p-2 border-r border-gray-200">{item.shortName}</td>
-                      <td className="p-2 border-r border-gray-200 font-mono">{item.code}</td>
-                      <td className="p-2 border-r border-gray-200">
-                        <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-sm border border-green-300 font-bold text-[10px]">
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="p-2 border-r border-gray-200 font-mono text-[11px] text-gray-600">{item.validFrom}</td>
-                      <td className="p-2 border-r border-gray-200 font-mono text-[11px] text-gray-600">{item.expiresAt}</td>
-                      <td className="p-2 border-r border-gray-200">{item.catalog}</td>
-                      <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                        <button 
-                          onClick={() => handleOpenOfferingDetail(item)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer"
-                        >
-                          Open Tab
-                        </button>
+                  {filteredOfferings.length === 0 ? (
+                    <tr>
+                      <td colSpan={12} className="p-8 text-center text-gray-500 italic">
+                        {hasSearched
+                          ? 'No matching offerings found for the given search criteria.'
+                          : 'Please enter Search Criteria (Offering ID or Offering Name) and click Search to display offerings.'}
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredOfferings.map((item, index) => (
+                      <tr 
+                        key={item.id} 
+                        className={`border-b border-gray-200 text-xs hover:bg-blue-50/70 transition-colors cursor-pointer ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-[#f9fafb]'
+                        }`}
+                        onClick={() => handleOpenOfferingDetail(item)}
+                      >
+                        <td className="p-2 border-r border-gray-200 text-center" onClick={(e) => e.stopPropagation()}>
+                          <input type="checkbox" />
+                        </td>
+                        <td className="p-2 border-r border-gray-200 font-mono text-blue-800 font-semibold">{item.id}</td>
+                        <td className="p-2 border-r border-gray-200 font-bold text-blue-900 hover:underline">{item.name}</td>
+                        <td className="p-2 border-r border-gray-200">{item.paymentMode}</td>
+                        <td className="p-2 border-r border-gray-200">{item.type}</td>
+                        <td className="p-2 border-r border-gray-200">{item.shortName}</td>
+                        <td className="p-2 border-r border-gray-200 font-mono">{item.code}</td>
+                        <td className="p-2 border-r border-gray-200">
+                          <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-sm border border-green-300 font-bold text-[10px]">
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="p-2 border-r border-gray-200 font-mono text-[11px] text-gray-600">{item.validFrom}</td>
+                        <td className="p-2 border-r border-gray-200 font-mono text-[11px] text-gray-600">{item.expiresAt}</td>
+                        <td className="p-2 border-r border-gray-200">{item.catalog}</td>
+                        <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                          <button 
+                            onClick={() => handleOpenOfferingDetail(item)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer"
+                          >
+                            Open Tab
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination Footer */}
             <div className="bg-[#f0f4f8] px-4 py-2 border-t border-[#b0c4de] flex items-center justify-between text-xs text-gray-600">
-              <div>Total records: <strong>{mockOfferings.length}</strong></div>
+              <div>Total records: <strong>{filteredOfferings.length}</strong></div>
               <div className="flex items-center gap-1">
                 <button className="px-2 py-0.5 border border-gray-300 bg-white rounded" disabled>|&lt;</button>
                 <button className="px-2 py-0.5 border border-gray-300 bg-white rounded" disabled>&lt;</button>
-                <span className="px-2 font-bold text-blue-900">Page 1 of 1</span>
+                <span className="px-2 font-bold text-blue-900">Page {filteredOfferings.length > 0 ? 1 : 0} of {filteredOfferings.length > 0 ? 1 : 0}</span>
                 <button className="px-2 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;</button>
                 <button className="px-2 py-0.5 border border-gray-300 bg-white rounded" disabled>&gt;|</button>
               </div>
@@ -344,3 +388,4 @@ export default function OfferingB2CView() {
     </div>
   );
 }
+

@@ -51,6 +51,23 @@ export default function App() {
             <Route path="inventory/:moduleSlug" element={<InventoryManagement />} />
           </Route>
 
+          <Route path="/crm" element={<CBSDashboard />}>
+            <Route index element={<Navigate to="site-map" replace />} />
+            <Route path="site-map" element={<CBSSiteMap />} />
+            <Route path="configure-offering" element={<ConfigureOfferingView />} />
+            <Route path="offering-b2c" element={<OfferingB2CView />} />
+            <Route path="eid-special-offer" element={<OfferingDetailView />} />
+            <Route path="bdc-rent-oneoff" element={<PlanDetailView />} />
+            <Route path="cash-recharge" element={<CashRechargeView />} />
+            <Route path="integration-query" element={<IntegrationQueryView />} />
+            <Route path="suspend-bar" element={<SuspendBarView />} />
+            <Route path="report-lost" element={<ReportLostView />} />
+            <Route path="subscriber-info" element={<SubscriberInfoView />} />
+            <Route path="bill-run" element={<BillRunView />} />
+            <Route path="reactivate-subscriber" element={<ReactivateSubscriberView />} />
+            <Route path="inventory" element={<InventoryManagement />} />
+          </Route>
+
           <Route path="/inventory" element={<Navigate to="/cbs/inventory" replace />} />
           <Route path="*" element={<Navigate to="/cbs/site-map" replace />} />
         </Routes>

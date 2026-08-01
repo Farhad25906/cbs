@@ -7,6 +7,10 @@ export default function CBSSiteMap() {
   const addTab = useTabStore((state) => state.addTab);
   const { addToast } = useToastStore();
 
+  const currentUserData = typeof localStorage !== 'undefined' ? localStorage.getItem('currentUser') : null;
+  const currentUser = currentUserData ? JSON.parse(currentUserData) : null;
+  const username = currentUser?.username || currentUser?.name || 'zahid6635';
+
   // Left sidebar categories (Image 4)
   const leftCategories = [
     'Unified System Management',
@@ -175,6 +179,15 @@ export default function CBSSiteMap() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col p-4 space-y-3 overflow-y-auto">
+        {/* My Workspace Welcome Header */}
+        <div className="bg-white p-4 rounded-sm border border-gray-200 shadow-2xs mb-1">
+          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">My Workspace</h1>
+          <p className="text-xs text-gray-500 mt-1">
+            Welcome back, <span className="font-semibold text-gray-700">{username}</span>. Here is your daily operational summary.
+          </p>
+          <hr className="mt-3 border-gray-200" />
+        </div>
+
         {/* UPC Home Header */}
         <div className="bg-[#e4ebf5] border border-[#a9bbcf] px-4 py-2 text-xs font-bold text-blue-900 rounded-sm flex items-center justify-between">
           <span>UPC Home</span>
