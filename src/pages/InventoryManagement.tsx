@@ -1760,8 +1760,8 @@ export default function InventoryManagement() {
                         <th className="p-2 border-r border-[#a9bbcf]">Type</th>
                         <th className="p-2 border-r border-[#a9bbcf]">Category</th>
                         <th className="p-2 border-r border-[#a9bbcf]">Status</th>
-                        <th className="p-2 border-r border-[#a9bbcf]">Warehouse Location</th>
-                        <th className="p-2 border-r border-[#a9bbcf]">Value / Amount</th>
+                        {/* <th className="p-2 border-r border-[#a9bbcf]">Warehouse Location</th>
+                        <th className="p-2 border-r border-[#a9bbcf]">Value / Amount</th> */}
                         <th className="p-2 border-r border-[#a9bbcf]">Created Date</th>
                         <th className="p-2 text-center">Operation</th>
                       </tr>
@@ -1815,12 +1815,12 @@ export default function InventoryManagement() {
                                   {item.status}
                                 </span>
                               </td>
-                              <td className="p-2 border-r border-gray-200 text-gray-600">
+                              {/* <td className="p-2 border-r border-gray-200 text-gray-600">
                                 {item.warehouse}
                               </td>
                               <td className="p-2 border-r border-gray-200 font-semibold text-gray-800">
                                 {item.valueOrAmount || 'N/A'}
-                              </td>
+                              </td> */}
                               <td className="p-2 border-r border-gray-200 text-gray-500 font-mono text-[11px]">
                                 {item.createdDate}
                               </td>
