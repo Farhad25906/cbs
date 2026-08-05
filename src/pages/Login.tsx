@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCRMStore } from '@/store/useCRMStore';
 import TeletalkLogo from '@/components/TeletalkLogo';
+import bg from "../assets/login_page.png"
 
 // Dummy user credentials matching CRM
 const DUMMY_USERS = [
@@ -52,7 +53,7 @@ export default function Login() {
         {/* Header Image Section */}
         <div className="relative">
           <img
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+            src={bg}
             alt="Team collaboration"
             className="w-full h-48 sm:h-56 md:h-64 object-cover"
           />
