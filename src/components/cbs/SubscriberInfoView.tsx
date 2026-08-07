@@ -79,7 +79,7 @@ export default function SubscriberInfoView() {
               <td className="p-2 font-mono text-blue-800">1511121617</td>
               <td className="p-2">Individual</td>
               <td className="p-2">Prepaid</td>
-              <td className="p-2 font-bold text-red-700">B1W</td>
+              <td className="p-2 font-bold text-red-700">IDLE</td>
               <td className="p-2">Sagotom</td>
               <td className="p-2">4G</td>
               <td className="p-2">NA</td>
